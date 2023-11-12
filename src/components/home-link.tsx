@@ -2,17 +2,18 @@ import styled from "@emotion/styled";
 import { FC } from "react";
 import {Link, useRoute} from "wouter";
 
-interface LeftPanelLinkProps {
+interface HomeLinkProps {
     href: string
     label: string
+    onClick?: () => void
     trailing?: JSX.Element
 }
 
-const LeftPanelLink: FC<LeftPanelLinkProps> = ({href, label, trailing}) => {
+const HomeLink: FC<HomeLinkProps> = ({href, label, trailing, onClick}) => {
     const [isActive] = useRoute(href);
     
     return(
-        <Wrapper href={href} className={isActive ? "isActive" : "" }>
+        <Wrapper onClick={onClick} href={href} className={isActive ? "isActive" : "" }>
             {label}
             {trailing}
         </Wrapper>
@@ -22,13 +23,13 @@ const LeftPanelLink: FC<LeftPanelLinkProps> = ({href, label, trailing}) => {
 const Wrapper = styled(Link)<{hrefactive: boolean}>`
     padding: 20px 40px;
     width: 100%;
-
-    &.isActive {
-        border-left: 3px solid ${p => p.theme.primitives.blue};
-        padding-left: 37px;
-        background-color: ${p => p.theme.primitives.blueHover};
-    }
-
+    background-color: ${p => p.theme.primitives.blueHover};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: 250px;
+    
     > i {
         margin-left: 10px;
     }
@@ -43,4 +44,4 @@ const Wrapper = styled(Link)<{hrefactive: boolean}>`
     }
 `;
 
-export default LeftPanelLink;
+export default HomeLink;

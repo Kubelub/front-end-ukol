@@ -122,7 +122,7 @@ export const ModalConfirmShoppingListDelete: FC<ModalConfirmShoppingListDeletePr
                 </Button>
             </div>
             <div>
-                <Button onClick={removeShoppingList} buttonType={ButtonType.TERTIARY}>
+                <Button onClick={() => {removeShoppingList(); hide();}} buttonType={ButtonType.TERTIARY}>
                     Odstranit
                 </Button>
             </div>
@@ -152,7 +152,7 @@ export const ModalConfirmItemDelete: FC<ModalConfirmItemDeleteProps> = ({hide, r
                 </Button>
             </div>
             <div>
-                <Button onClick={removeItem} buttonType={ButtonType.TERTIARY}>
+                <Button onClick={() => {removeItem(); hide();}} buttonType={ButtonType.TERTIARY}>
                     Odstranit
                 </Button>
             </div>

@@ -16,6 +16,7 @@ export function userTypeToLabel(type: UserType) {
 export interface ShoppingListType {
     href: string
     label: string
+    archived: boolean
 }
 
 export const GlobalContext = createContext<{
@@ -27,6 +28,8 @@ export const GlobalContext = createContext<{
     setContextMenu: (value: ContextMenu | null) => void,
     showContextMenu: (items: ContextMenuItem[], snapTo?: HTMLElement, coordinates?: CursorPosition, activeItem?: number) => void,
     hideContextMenu: () => void,
+    showArchived: boolean,
+    setShowArchived: (value: boolean) => void,
   }>({
     shoppingLists: [],
     setShoppingLists: () => {},
@@ -36,4 +39,6 @@ export const GlobalContext = createContext<{
     setContextMenu: () => {},
     showContextMenu: () => {},
     hideContextMenu: () => {},
+    showArchived: false,
+    setShowArchived: () => {},
 });

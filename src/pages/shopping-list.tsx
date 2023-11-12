@@ -24,7 +24,7 @@ export interface User {
 const ShoppingList = () => {
     const {activeUser, showContextMenu, shoppingLists, setShoppingLists} = useContext(GlobalContext);
 
-    const {shoppingListName} = useParams();
+    const {shoppingListName: shoppingListHref} = useParams();
     const [_, setLocation] = useLocation();
 
     const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
@@ -46,9 +46,10 @@ const ShoppingList = () => {
     const optionsRef = useRef(null);
 
     useEffect(() => {
-        switch (shoppingListName) {
+        const selectedShoppingList = shoppingLists.filter((shoppingList) => shoppingList.href == shoppingListHref)[0];
+        setPageHeader(selectedShoppingList.label);
+        switch (shoppingListHref) {
             case "pondelni-vecere": {
-                setPageHeader("Pondělní večeře");
                 setShoppingItems([
                     {name: "Řízek", done: false, id: 1},
                     {name: "Brambory", done: false, id: 2},
@@ -56,7 +57,6 @@ const ShoppingList = () => {
                 break;
             }
             case "patecni-oslava": {
-                setPageHeader("Páteční oslava");
                 setShoppingItems([
                     {name: "Dort", done: false, id: 1},
                     {name: "Koblihy", done: false, id: 2},
@@ -64,14 +64,20 @@ const ShoppingList = () => {
                 break;
             }
             case "sobotni-fotbalovy-zapas": {
-                setPageHeader("Sobotní fotbalový zápas");
+                setShoppingItems([
+                    {name: "Cibulové kroužky", done: false, id: 1},
+                    {name: "Pivo", done: false, id: 2},
+                ]);
+                break;
+            }
+            default: {
                 setShoppingItems([
                     {name: "Cibulové kroužky", done: false, id: 1},
                     {name: "Pivo", done: false, id: 2},
                 ]);
             }
         }
-    }, [shoppingListName]);
+    }, [shoppingListHref]);
 
     return (
         <>
@@ -86,7 +92,7 @@ const ShoppingList = () => {
                     removeShoppingList={() => {
                         let deletedWasFirst = false;
                         setShoppingLists(shoppingLists.filter((shoppingList, i) => {
-                            const  willBeDeleted = shoppingList.href == shoppingListName
+                            const  willBeDeleted = shoppingList.href == shoppingListHref
                             if (willBeDeleted) deletedWasFirst = i == 0;
 
                             return !willBeDeleted
@@ -167,7 +173,7 @@ const ShoppingList = () => {
                                                             action: () => {
                                                                 let deletedWasFirst = false;
                                                                 setShoppingLists(shoppingLists.filter((shoppingList, i) => {
-                                                                    const  willBeDeleted = shoppingList.href == shoppingListName
+                                                                    const  willBeDeleted = shoppingList.href == shoppingListHref
                                                                     if (willBeDeleted) deletedWasFirst = i == 0;
 
                                                                     return !willBeDeleted

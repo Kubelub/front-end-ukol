@@ -13,6 +13,7 @@ export interface CursorPosition {
 export interface ContextMenuItem {
     label: string
     action: () => void
+    trailing?: JSX.Element
     divider?: boolean
 }
 
@@ -109,6 +110,7 @@ export const ContextMenuRenderer = () => {
                         label: contextMenuItem.label,
                         borderBottom: contextMenuItem.divider,
                         onClick: contextMenuItem.action,
+                        trailing: contextMenuItem.trailing,
                     })) ?? []}
                 />
             }
