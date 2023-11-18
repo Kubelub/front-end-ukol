@@ -1,63 +1,79 @@
 import styled from "@emotion/styled";
-import { useContext, useRef, useState } from "react";
-import {Link, useRoute} from "wouter";
-import { GlobalContext, UserType, userTypeToLabel } from "../utils/contexts";
+import { useContext, useRef, useState, useEffect } from "react";
+import { Link, useLocation, useRoute } from "wouter";
+import { GlobalContext, ShoppingListType, User } from "../utils/contexts";
 import Button, { ButtonType } from "./button";
+import { ModalAddShoppingList } from "./left-panel-actions";
 import LeftPanelLink from "./left-panel-link";
-import {ModalAddShoppingList} from "./left-panel-actions";
+import useSWR, { mutate } from "swr";
+import ErrorPage from "../pages/error-page";
 
 const LeftPanel = () => {
+    const { showContextMenu, activeUserToken, setActiveUserToken, showArchived, setShowArchived } = useContext(GlobalContext);
+    const { data: shoppingLists, error: shoppingListsError, mutate } = useSWR<ShoppingListType[]>("shopping-list");
+    const { data: users, error: usersError } = useSWR<User[]>("user");
 
-    const {showArchived, setShowArchived, showContextMenu, activeUser, setActiveUser, shoppingLists} = useContext(GlobalContext);
-
-    const userRef = useRef(null);
-
-    
+    const [_, setLocation] = useLocation();
     const [homeActive] = useRoute("");
 
     const [modalAddShoppingList, setModalAddShoppingList] = useState(false);
 
+    const userRef = useRef(null);
+
+    useEffect(() => {mutate()}, [activeUserToken]);
+
+    if (shoppingListsError || usersError) return <ErrorPage />;
+
+    if (!shoppingLists || !users) return <>Načítání...</>;
+
     return (
         <>
-            {modalAddShoppingList && 
-                <ModalAddShoppingList hide={() => setModalAddShoppingList(false)}/>
+            {modalAddShoppingList &&
+                <ModalAddShoppingList hide={async (refetch: boolean) => {
+                    if (refetch) await mutate();
+                    setModalAddShoppingList(false);
+                }} />
             }
-             <Wrapper>
-                <User className="hover-active" onClick={() =>
+            <Wrapper>
+                <UserDiv className="hover-active" onClick={() =>
                     showContextMenu(
-                        [
-                            {label: userTypeToLabel(UserType.OWNER), action: () => setActiveUser(UserType.OWNER), trailing: activeUser == UserType.OWNER ? <i style={{"marginLeft": "10px"}} className="fa fa-check" />  : undefined},
-                            {label: userTypeToLabel(UserType.USER), action: () => setActiveUser(UserType.USER), trailing: activeUser == UserType.USER ? <i style={{"marginLeft": "10px"}} className="fa fa-check" />  : undefined},
-                        ], userRef.current!
+                        users.map(user => ({
+                            label: user.name,
+                            action: () => {
+                                setActiveUserToken(user.token);
+                                setLocation("/");
+                            }
+                        })),
+                        userRef.current,
                     )
                 }>
                     <p ref={userRef}>
-                        {userTypeToLabel(activeUser)}
+                        {users.filter(user => user.token == activeUserToken)[0].name}
                     </p>
-                </User>
+                </UserDiv>
                 <Link href="/">
-                    <Home className={homeActive ? "isActive" : "" }>
+                    <Home className={homeActive ? "isActive" : ""}>
                         <i className="fa fa-home" />
                         <p>Domů</p>
                     </Home>
                 </Link>
                 <div>
                     {shoppingLists.filter((shoppingList) => showArchived ? true : !shoppingList.archived).sort((a, b) => {
-                                    if(a.archived == b.archived) return 0;
-                                    if (a.archived) return 1;
-                                    return -1;
-                                }).map((shoppingList, i) =>
-                        <LeftPanelLink 
+                        if (a.archived == b.archived) return 0;
+                        if (a.archived) return 1;
+                        return -1;
+                    }).map((shoppingList, i) =>
+                        <LeftPanelLink
                             key={i}
-                            href={`/${shoppingList.href}`}
-                            label={shoppingList.label}
-                            trailing={shoppingList.archived ?  <i className="fa fa-box-archive" /> : undefined}
+                            href={`/${shoppingList.slug}`}
+                            label={shoppingList.name}
+                            trailing={shoppingList.archived ? <i className="fa fa-box-archive" /> : undefined}
                         />
                     )}
                 </div>
                 <div>
-                    <Button 
-                        onClick={() => setShowArchived(!showArchived)} buttonType={showArchived ? ButtonType.SECONDARY : ButtonType.PRIMARY} 
+                    <Button
+                        onClick={() => setShowArchived(!showArchived)} buttonType={showArchived ? ButtonType.SECONDARY : ButtonType.PRIMARY}
                     >
                         {showArchived ? "Skrýt archivované" : "Zobrazit archivované"}
                     </Button>
@@ -108,7 +124,7 @@ const Wrapper = styled("header")`
     box-shadow: 0px 0.8px 0.9px ${p => p.theme.background.secondary},0px 1.6px 3.6px ${p => p.theme.background.secondary};
 `;
 
-const User = styled("div")`
+const UserDiv = styled("div")`
     display: flex;
     align-items: center; 
     cursor: pointer;

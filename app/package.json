@@ -16,6 +16,7 @@
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.47.0",
+    "swr": "^2.2.4",
     "wouter": "^2.12.1"
   },
   "devDependencies": {

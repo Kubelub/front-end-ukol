@@ -1,0 +1,48 @@
+[
+    {
+        "id": 1,
+        "name": "Pondělní večeře",
+        "slug": "pondelni-vecere",
+        "archived": false,
+        "members": [
+            2,
+            3
+        ],
+        "owner": 1,
+        "shopping-items": [
+            1,
+            2,
+            7
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Páteční oslava",
+        "slug": "patecni-oslava",
+        "archived": false,
+        "members": [
+            2,
+            3
+        ],
+        "owner": 1,
+        "shopping-items": [
+            3,
+            4
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Sobotní fotbalový zápas",
+        "slug": "sobotni-fotbalovy-zapas",
+        "archived": true,
+        "members": [
+            2,
+            3
+        ],
+        "owner": 1,
+        "shopping-items": [
+            5,
+            6
+        ]
+    }
+]

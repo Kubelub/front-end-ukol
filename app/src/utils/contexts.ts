@@ -1,29 +1,25 @@
 import {createContext} from "react";
 import {ContextMenu, ContextMenuItem, CursorPosition } from "../components/context-menu";
 
-export enum UserType {
-    USER,
-    OWNER,
-}
-
-export function userTypeToLabel(type: UserType) {
-    switch(type) {
-        case UserType.OWNER: return "Vlastník";
-        case UserType.USER: return "Člen";
-    }
+export interface User {
+    id: number
+    name: string
+    token: string
 }
 
 export interface ShoppingListType {
+    id: number
     href: string
-    label: string
+    slug: string
+    name: string
     archived: boolean
+    members: number[]
+    owner: number
 }
 
 export const GlobalContext = createContext<{
-    shoppingLists: ShoppingListType[],
-    setShoppingLists: (shoppingLists: ShoppingListType[]) => void,
-    activeUser: UserType,
-    setActiveUser: (type: UserType) => void,
+    activeUserToken: string,
+    setActiveUserToken: (token: string) => void,
     contextMenu: ContextMenu | null,
     setContextMenu: (value: ContextMenu | null) => void,
     showContextMenu: (items: ContextMenuItem[], snapTo?: HTMLElement, coordinates?: CursorPosition, activeItem?: number) => void,
@@ -31,14 +27,12 @@ export const GlobalContext = createContext<{
     showArchived: boolean,
     setShowArchived: (value: boolean) => void,
   }>({
-    shoppingLists: [],
-    setShoppingLists: () => {},
-    activeUser: UserType.USER,
-    setActiveUser: () => {},
+    activeUserToken: "",
+    setActiveUserToken: () => {},
     contextMenu: null,
     setContextMenu: () => {},
-    showContextMenu: () => {},
     hideContextMenu: () => {},
+    showContextMenu: () => {},
     showArchived: false,
     setShowArchived: () => {},
 });

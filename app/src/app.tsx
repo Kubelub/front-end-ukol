@@ -1,21 +1,18 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
+import { SWRConfig } from "swr";
 import { Route, Router, Switch } from "wouter";
 import { ContextMenu, ContextMenuItem, ContextMenuRenderer, CursorPosition } from "./components/context-menu";
 import LeftPanel from "./components/left-panel";
+import { getData } from "./network";
 import Home from "./pages/index";
 import ShoppingList from "./pages/shopping-list";
-import { GlobalContext, ShoppingListType, UserType } from "./utils/contexts";
+import { GlobalContext } from "./utils/contexts";
 
 function App() {
   const [showArchived, setShowArchived] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
-  const [activeUser, setActiveUser] = useState<UserType>(UserType.OWNER);
-  const [shoppingLists, setShoppingLists] = useState<ShoppingListType[]>([
-    {label: "Pondělní večeře", href: "pondelni-vecere", archived: false},
-    {label: "Páteční oslava", href: "patecni-oslava", archived: false},
-    {label: "Sobotní fotbalový zápas", href: "sobotni-fotbalovy-zapas", archived: true},
-  ]);
+  const [activeUserToken, setActiveUserToken] = useState("$2a$12$erYefxNdI/Cu1lVRV6za0.KdWVwgoqNZ79grqSkI6rxO9T5BtiNkC");
 
   function showContextMenu(items: ContextMenuItem[], snapTo?: HTMLElement, coordinates?: CursorPosition, activeItem?: number) {
     setTimeout(() => {
@@ -31,20 +28,22 @@ function App() {
   return (
     <>
       <GlobalContext.Provider
-        value={{shoppingLists, showArchived, setShowArchived, setShoppingLists, activeUser, setActiveUser, contextMenu, setContextMenu, showContextMenu, hideContextMenu}}
+        value={{showArchived, setShowArchived, activeUserToken, setActiveUserToken, contextMenu, setContextMenu, showContextMenu, hideContextMenu}}
       >
         <ContextMenuRenderer/>
-        <Router>
-            <Page>
-                <LeftPanel/>
-                <div>
-                  <Switch>
-                    <Route path="/:shoppingListName" component={ShoppingList}/>
-                    <Route component={Home} />
-                  </Switch>
-                </div>
-            </Page>
-        </Router>
+        <SWRConfig value={{fetcher: (url) => getData(url, activeUserToken)}}>
+          <Router>
+              <Page>
+                  <LeftPanel/>
+                  <div>
+                    <Switch>
+                      <Route path="/:shoppingListSlug" component={ShoppingList}/>
+                      <Route component={Home} />
+                    </Switch>
+                  </div>
+              </Page>
+          </Router>
+        </SWRConfig>
       </GlobalContext.Provider>
     </>
   );

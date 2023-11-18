@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { forwardRef, ComponentProps } from "react";
+import ProgressSpinner from "./progress-spinner";
 
 
 export enum ButtonType {
@@ -11,11 +12,12 @@ export enum ButtonType {
 interface ButtonProps extends ComponentProps<"button"> {
     children: JSX.Element | string
     buttonType?: ButtonType
+    loading?: boolean
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(({children, onClick, buttonType, ...props}, ref) => (
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({children, loading, onClick, buttonType, ...props}, ref) => (
     <Wrapper onClick={onClick} ref={ref} className={buttonType ?? "secondary-type"} {...props}>
-        {children}
+        {loading ? <ProgressSpinner/> : children}
     </Wrapper>
     )
 );
