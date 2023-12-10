@@ -12,8 +12,10 @@ const LeftPanelLink: FC<LeftPanelLinkProps> = ({href, label, trailing}) => {
     const [isActive] = useRoute(href);
     
     return(
-        <Wrapper href={href} className={isActive ? "isActive" : "" }>
-            {label}
+        <Wrapper href={href} className={isActive ? "isActive blue-background" : "" }>
+            <p className={isActive ? "" : "white-text"}>
+                {label}
+            </p>
             {trailing}
         </Wrapper>
     );
@@ -26,13 +28,11 @@ const Wrapper = styled(Link)<{hrefactive: boolean}>`
     &.isActive {
         border-left: 3px solid ${p => p.theme.primitives.blue};
         padding-left: 37px;
-        background-color: ${p => p.theme.primitives.blueHover};
     }
 
     > i {
         margin-left: 10px;
     }
-
 
     &:hover {
         opacity: 0.8;

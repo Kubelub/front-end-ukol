@@ -1,23 +1,23 @@
 import styled from "@emotion/styled";
 import { useContext } from "react";
 import HomeLink from "../components/home-link";
-import { GlobalContext, ShoppingListType } from "../utils/contexts";
+import { GlobalContext, ShoppingListType, getTextAfterLanguage } from "../utils/contexts";
 import ErrorPage from "./error-page";
 import useSWR from "swr";
 
 const HomePage = () => {
-    const { setShowArchived } = useContext(GlobalContext);
+    const { setShowArchived, activeLanguage } = useContext(GlobalContext);
 
-    const { data, error, mutate } = useSWR<ShoppingListType[]>("shopping-list");
+    const { data, error } = useSWR<ShoppingListType[]>("shopping-list");
 
     if (error) return <ErrorPage/>;
 
-    if (!data) return <>Načítání...</>;
+    if (!data) return <>{getTextAfterLanguage("Náčítání...", "Loading...", activeLanguage)}</>;
 
     return (
         <Wrapper>
             <Label>
-                Přehled všech nákupních seznamů
+                {getTextAfterLanguage("Přehled všech nákupních seznamů", "All Shopping lists", activeLanguage)}
             </Label>
             <div>
                 {data.sort((a, b) => {
@@ -46,6 +46,10 @@ const Wrapper = styled("div")`
         display: flex;
 
         gap: 15px;
+
+        @media only screen and (max-width: ${p => p.theme.breakPoints.mobile}px) {
+            flex-direction: column;
+        }
     }
 `;
 

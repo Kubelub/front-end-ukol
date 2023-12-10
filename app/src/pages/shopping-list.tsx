@@ -9,13 +9,14 @@ import EmptyState from "../components/emptyState";
 import ShoppingItem from "../components/shopping-item";
 import { ModalAddShoppingItem, ModalArchive, ModalChangeUsers, ModalConfirmItemDelete, ModalConfirmShoppingListDelete, ModalEditShoppingListName, ModalLeaveShoppingList } from "../components/shopping-list-actions";
 import { GENERAL_ERROR_MESSAGE, postData } from "../network";
-import { GlobalContext, ShoppingListType } from "../utils/contexts";
+import { GlobalContext, ShoppingListType, getTextAfterLanguage } from "../utils/contexts";
 import ErrorPage from "./error-page";
 
 export interface ShoppingItemType {
     name: string
     done: boolean
     id: number
+    count: number
 }
 
 export interface User {
@@ -28,7 +29,7 @@ const ShoppingList = () => {
     const {shoppingListSlug} = useParams();
     const { data, error, mutate: mutateShoppingList } = useSWR<{list: ShoppingListType, items: ShoppingItemType[], users: User[]}>(`shopping-list/${shoppingListSlug}`);
     
-    const { activeUserToken, showContextMenu, showArchived, setShowArchived } = useContext(GlobalContext);
+    const { activeUserToken, showContextMenu, showArchived, setShowArchived, activeLanguage } = useContext(GlobalContext);
 
     const [modalEditShoppingListName, setModalEditShoppingListName] = useState(false);
     const [modalArchive, setModalArchive] = useState(false);
@@ -48,7 +49,7 @@ const ShoppingList = () => {
 
     if (error) return <ErrorPage/>;
 
-    if (!data) return <>Načítání...</>
+    if (!data) return <>{getTextAfterLanguage("Náčítání...", "Loading...", activeLanguage)}</>
 
     return (
         <>
@@ -151,19 +152,19 @@ const ShoppingList = () => {
                                     showContextMenu(
                                         [
                                             {
-                                                label: "Změnit název", 
+                                                label: getTextAfterLanguage("Změnit název nákupního listu", "Change name of shopping list", activeLanguage), 
                                                 action: () => setModalEditShoppingListName(true),
                                             },
                                             {
-                                                label: data.list.archived ? "Zrušit archivaci" : "Archivovat", 
+                                                label: data.list.archived ? getTextAfterLanguage("Zrušit archivaci", "Cancel archivation", activeLanguage) : getTextAfterLanguage("Archivovat", "Archive", activeLanguage), 
                                                 action: () => setModalArchive(true),
                                             },
                                             {
-                                                label: "Upravit členy", 
+                                                label: getTextAfterLanguage("Upravit členy", "Edit users", activeLanguage), 
                                                 action: () => setModalChangeUsers(true),
                                             },
                                             {
-                                                label: "Odstranit seznam", 
+                                                label: getTextAfterLanguage("Odstranit seznam", "Delete shopping list", activeLanguage), 
                                                 action: () => setModalConfirmShoppingListDelete(true),
                                             },
                                         ], optionsRef.current
@@ -173,20 +174,20 @@ const ShoppingList = () => {
                                 showContextMenu(
                                     [
                                         {
-                                            label: "Odejít", 
+                                            label: getTextAfterLanguage("Odejít", "Leave", activeLanguage), 
                                             action: () => setModalLeaveShoppingListActive(true),
                                         },
                                     ], optionsRef.current
                                 );                           
                             }}
                         >
-                            <i className="fa fa-ellipsis" />
+                            <i className="fa fa-ellipsis white-text" />
                         </Button>
                     </div>
                     
                     {data.items.length != 0 ? 
                         <>
-                            <CheckBox label="Ukázat dokončené" onClick={() => setShowDone(p => !p)} checked={showDone} />
+                            <CheckBox label={getTextAfterLanguage("Zobrazit dokončené", "Show done", activeLanguage)} onClick={() => setShowDone(p => !p)} checked={showDone} />
                             {data.items.sort((a, b) => {
                                 if(a.done == b.done) return 0;
                                 if (a.done) return 1;
@@ -212,14 +213,14 @@ const ShoppingList = () => {
                         </>    
                         :
                         <EmptyState
-                            label="Žádné položky"
-                            description="Tento nákupní seznam nemá žádné položky"
+                            label={getTextAfterLanguage("Žádné položky", "No items", activeLanguage)}
+                            description={getTextAfterLanguage("Tento nákupní seznam nemá žádné položky", "This shopping list has no items", activeLanguage)}
                         />
                 }
                     
                     <div style={{display: "flex", "justifyContent": "center"}}>
                         <Button onClick={() => setModalAddShoppingItem(true)} buttonType={ButtonType.PRIMARY}>
-                            Přidat Položku
+                            {getTextAfterLanguage("Přidat Položku", "Add item", activeLanguage)}
                         </Button>
                     </div>
                 </>

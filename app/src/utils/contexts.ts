@@ -17,7 +17,28 @@ export interface ShoppingListType {
     owner: number
 }
 
+export function getLabelFromLanguage(lan: Languague, activeLan: Languague): string {
+    switch (lan) {
+        case Languague.CZE: return getTextAfterLanguage("Čeština", "Czech", activeLan);
+        case Languague.ENG: return getTextAfterLanguage("Angličtina", "English", activeLan);
+    } 
+} 
+
+export function getTextAfterLanguage(cze: string, eng: string, activeLan: Languague): string {
+    switch (activeLan) {
+        case Languague.CZE: return cze;
+        case Languague.ENG: return eng;
+    }
+} 
+
+export enum Languague {
+    CZE = "CZE",
+    ENG = "ENG",
+} 
+
 export const GlobalContext = createContext<{
+    activeLanguage: Languague,
+    setActiveLanguage: (lan: Languague) => void,
     activeUserToken: string,
     setActiveUserToken: (token: string) => void,
     contextMenu: ContextMenu | null,
@@ -27,6 +48,8 @@ export const GlobalContext = createContext<{
     showArchived: boolean,
     setShowArchived: (value: boolean) => void,
   }>({
+    activeLanguage: Languague.CZE,
+    setActiveLanguage: (lan: Languague) => {},
     activeUserToken: "",
     setActiveUserToken: () => {},
     contextMenu: null,

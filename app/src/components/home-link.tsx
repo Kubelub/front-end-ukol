@@ -13,7 +13,7 @@ const HomeLink: FC<HomeLinkProps> = ({href, label, trailing, onClick}) => {
     const [isActive] = useRoute(href);
     
     return(
-        <Wrapper onClick={onClick} href={href} className={isActive ? "isActive" : "" }>
+        <Wrapper onClick={onClick} href={href} className={isActive ? "isActive blue-background" : "blue-background" }>
             {label}
             {trailing}
         </Wrapper>
@@ -29,6 +29,10 @@ const Wrapper = styled(Link)<{hrefactive: boolean}>`
     align-items: center;
     text-align: center;
     max-width: 250px;
+
+    @media only screen and (max-width: ${p => p.theme.breakPoints.mobile}px) {
+        max-width: 100%;
+    }
     
     > i {
         margin-left: 10px;

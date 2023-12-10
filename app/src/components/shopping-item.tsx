@@ -11,7 +11,7 @@ interface ShoppingItemProps extends ShoppingItemType {
 }
 
 const ShoppingItem: FC<ShoppingItemProps> = ({children, done, count, onDoneToogle, onDelete}) => (
-    <Wrapper className={done ? "done" : "" }>
+    <Wrapper className={done ? "done primary-background" : "primary-background" }>
         <div>
             <CheckBox
                 checked={done}
@@ -40,6 +40,7 @@ const Wrapper = styled("div")`
     align-items: center;
     justify-content: space-between;
     background-color: ${p => p.theme.background.primary};
+    border: 2px solid ${p => p.theme.inverse.content.primary};
 
     > div:first-of-type {
         display: flex;

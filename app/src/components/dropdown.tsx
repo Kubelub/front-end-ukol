@@ -17,7 +17,7 @@ export interface DropdownProps {
 }
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(({onChange, hideDropdown, top, left, reversedTop, items}, dropdownRef) => {
-    let wrapperRef: HTMLDivElement | null = null
+    const wrapperRef: HTMLDivElement | null = null
     const [reversed, setReversed] = useState(false);
     const [dropdownIndex, setDropdownIndex] = useState(-1);
     const [dropdownItemsWithOnClick, setDropdownItemsWithOnClick] = useState<DropdownItemWithClick[]>([]);
@@ -26,7 +26,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(({onChange, hideDropd
         onMount(window);
         getElementPagePosition();
 
-        let itemsWithClick: DropdownItemWithClick[]= [];
+        const itemsWithClick: DropdownItemWithClick[] = [];
         for (let i = 0; i < items.length; i++) {
 
             itemsWithClick.push({

@@ -1,15 +1,16 @@
 import styled from "@emotion/styled";
 import { useContext, useRef, useState, useEffect } from "react";
 import { Link, useLocation, useRoute } from "wouter";
-import { GlobalContext, ShoppingListType, User } from "../utils/contexts";
+import { GlobalContext, Languague, ShoppingListType, User, getLabelFromLanguage, getTextAfterLanguage } from "../utils/contexts";
 import Button, { ButtonType } from "./button";
 import { ModalAddShoppingList } from "./left-panel-actions";
 import LeftPanelLink from "./left-panel-link";
 import useSWR, { mutate } from "swr";
 import ErrorPage from "../pages/error-page";
+import { css } from "@emotion/react";
 
 const LeftPanel = () => {
-    const { showContextMenu, activeUserToken, setActiveUserToken, showArchived, setShowArchived } = useContext(GlobalContext);
+    const { showContextMenu, activeUserToken, setActiveUserToken, showArchived, setShowArchived, activeLanguage, setActiveLanguage } = useContext(GlobalContext);
     const { data: shoppingLists, error: shoppingListsError, mutate } = useSWR<ShoppingListType[]>("shopping-list");
     const { data: users, error: usersError } = useSWR<User[]>("user");
 
@@ -18,13 +19,26 @@ const LeftPanel = () => {
 
     const [modalAddShoppingList, setModalAddShoppingList] = useState(false);
 
+    const [mobileMenuOpened, setMobileMenuOpened] = useState(false);
+
+    const [darkModeActive, setDarkModeActive] = useState(false);
+
     const userRef = useRef(null);
+    const buttonHref = useRef(null);  
 
     useEffect(() => {mutate()}, [activeUserToken]);
 
+    useEffect(() => {
+        if (darkModeActive) {
+            document.body.classList.add("dark-mode");
+            return;
+        } 
+        document.body.classList.remove("dark-mode");
+    }, [darkModeActive]);
+
     if (shoppingListsError || usersError) return <ErrorPage />;
 
-    if (!shoppingLists || !users) return <>Načítání...</>;
+    if (!shoppingLists || !users) return <>{getTextAfterLanguage("Náčítání...", "Loading...", activeLanguage)}...</>;
 
     return (
         <>
@@ -34,7 +48,21 @@ const LeftPanel = () => {
                     setModalAddShoppingList(false);
                 }} />
             }
-            <Wrapper>
+            <MobileHeader className="primary-background hide-on-desktop">
+                <Link href="/">
+                    <Button buttonType={ButtonType.SECONDARY}>
+                        <p className="white-text">
+                            <i className="fa fa-cart-shopping" />
+                            {getTextAfterLanguage("Domů", "Home", activeLanguage)}
+                        </p>
+                    </Button>
+                </Link>
+                <Button className="white-text" buttonType={ButtonType.SECONDARY} onClick={() => setMobileMenuOpened(p => !p)}>
+                    {getTextAfterLanguage(mobileMenuOpened ? "Zavřít menu" : "Menu", mobileMenuOpened ? "Close menu" : "Menu", activeLanguage)}
+                </Button>
+            </MobileHeader>
+
+            <Wrapper className="tertiary-background" show={mobileMenuOpened}>
                 <UserDiv className="hover-active" onClick={() =>
                     showContextMenu(
                         users.map(user => ({
@@ -47,14 +75,14 @@ const LeftPanel = () => {
                         userRef.current,
                     )
                 }>
-                    <p ref={userRef}>
+                    <p className="white-text" ref={userRef}>
                         {users.filter(user => user.token == activeUserToken)[0].name}
                     </p>
                 </UserDiv>
                 <Link href="/">
-                    <Home className={homeActive ? "isActive" : ""}>
+                    <Home className={homeActive ? "isActive blue-background" : ""}>
                         <i className="fa fa-home" />
-                        <p>Domů</p>
+                        <p className="white-text">{getTextAfterLanguage("Domů", "Home", activeLanguage)}</p>
                     </Home>
                 </Link>
                 <div>
@@ -72,15 +100,38 @@ const LeftPanel = () => {
                     )}
                 </div>
                 <div>
+                    <Button 
+                        ref={buttonHref}
+                        onClick={() =>
+                            showContextMenu(
+                                (Object.keys(Languague) as Array<Languague>).map((key) => ({
+                                    label: getLabelFromLanguage(key, activeLanguage), 
+                                    action: () => setActiveLanguage(key)})),
+                                buttonHref.current,
+                            )
+                        } 
+                    >
+                        <p className="white-text">
+                            {getLabelFromLanguage(activeLanguage, activeLanguage)}
+                        </p>
+                    </Button>
+                    <Button 
+                        onClick={() => setDarkModeActive(p => !p)} 
+                    >   
+                    <p className="white-text">
+                        {darkModeActive ? "Light mode" : "Dark mode"}
+                    </p>
+                    </Button>
+
                     <Button
                         onClick={() => setShowArchived(!showArchived)} buttonType={showArchived ? ButtonType.SECONDARY : ButtonType.PRIMARY}
                     >
-                        {showArchived ? "Skrýt archivované" : "Zobrazit archivované"}
+                        {showArchived ? getTextAfterLanguage("Skrýt archivované", "Hide archived", activeLanguage) : getTextAfterLanguage("Zobrazit archivované", "Show archived", activeLanguage)}
                     </Button>
 
                     <Button buttonType={ButtonType.PRIMARY} onClick={() => setModalAddShoppingList(true)}>
                         <>
-                            Přidat nákupní seznam
+                            {getTextAfterLanguage("Přidat nový nákupní seznam", "Add new shopping list", activeLanguage)}
                             <i className="fa fa-plus" />
                         </>
                     </Button>
@@ -90,11 +141,40 @@ const LeftPanel = () => {
     );
 }
 
-const Wrapper = styled("header")`
+const MobileHeader = styled("header")`
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    padding: 0px 10px;
+    height: 55px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    z-index: 4;
+    border-bottom: 1px solid ${p => p.theme.inverse.content.primary};
+
+    > button > p > i {
+        margin-right: 5px;
+    }
+`;
+
+const Wrapper = styled("header")<{show: boolean}>`
     display: flex;
     flex-direction: column;
     position: fixed;
     justify-content: flex-start;
+
+    @media screen and (max-width: ${p => p.theme.breakPoints.mobile}px) {
+        transform: translateY(-100%);
+        width: 100%;
+        min-height: calc(100vh - 55px);
+        max-height: calc(100vh - 55px);
+        transition: transform 0.5s;
+        ${p => p.show && css`
+            transform: translateY(55px);
+        `}
+    }
 
     > div:nth-of-type(3) {
         align-items: flex-start;
@@ -105,7 +185,7 @@ const Wrapper = styled("header")`
 
     > div:last-of-type {
         display: flex;
-        padding: 0px 40px;
+        padding: 20px 40px;
         margin-top: 20px;
         align-items: flex-start;
         flex-direction: column;
@@ -149,7 +229,6 @@ const Home = styled("div")`
     &.isActive {
         border-left: 3px solid ${p => p.theme.primitives.blue};
         padding-left: 37px;
-        background-color: ${p => p.theme.primitives.blueHover};
     }
 
     > p {
